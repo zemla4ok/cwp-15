@@ -11,7 +11,7 @@ class Fleet {
 }
 const ErrorObj = { code: 404, message: 'Error!!!' };
 
-fleetsRouter.get('/readall', (req, resp, next) => {
+fleetsRouter.get('/readall', async (req, resp, next) => {
     resp.statusCode = 200;
     db.Fleet.findAll().then((res) => {
         resp.json(res.map(i => i.name));
