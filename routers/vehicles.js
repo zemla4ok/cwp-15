@@ -33,9 +33,10 @@ vehiclesRouter.get('/readall', (req, resp, next) => {
 vehiclesRouter.get('/read', (req, resp, next) => {
     if (!req.query.id) { resp.json(ErrorObj); return; }
     const id = req.query.id;
+
+    if(req.manager.super){
     db.Vehicle.findAll(
         {
-            attributes: ['name'],
             where: {
                 id: id,
                 deletedAt: null
@@ -44,6 +45,22 @@ vehiclesRouter.get('/read', (req, resp, next) => {
             if (!res.length) resp.json(ErrorObj);
             else resp.json(res);
         });
+    }
+    else{
+        db.Vehicle.findAll(
+            {
+                where: {
+                    id: id,
+                    fleetId: req.manager.fleetId,
+                    deletedAt: null
+                },
+            }).then((res) => {
+                if (!res.length) resp.json(ErrorObj);
+                else {
+                    resp.json(res);
+                }
+            });
+        }
 });
 vehiclesRouter.post('/update', (req, resp, next) => {
     req = req.body;
