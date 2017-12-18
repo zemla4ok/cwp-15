@@ -13,11 +13,34 @@ class Motion {
 }
 const ErrorObj = { code: 404, message: 'Error!!!' };
 motionsRouter.post('/create', (req, resp, next) => {
-    req = req.body;
-    if (!req.latitude && !req.longitude && !req.time && !req.vehicleId) { resp.json(ErrorObj); return; }
-    const motion = new Motion(req.latitude, req.longitude, req.time, req.vehicleId);
-    db.Motion.create(motion);
-    resp.json(motion);
+    if(req.manager.super){
+        console.log('super');
+        req = req.body;
+        if (!req.latitude && !req.longitude && !req.time && !req.vehicleId) { resp.json(ErrorObj); return; }
+        const motion = new Motion(req.latitude, req.longitude, req.time, req.vehicleId);
+        db.Motion.create(motion);
+        resp.json(motion);
+    }
+    else{
+        db.Vehicle.findAll({
+            where:{
+                fleetId: req.manager.fleetId,
+                id: req.body.vehicleId
+            }
+        }).then((car) => {
+        if(car.length){
+            console.log('not super')
+            req = req.body;
+            if (!req.latitude && !req.longitude && !req.time && !req.vehicleId) { resp.json(ErrorObj); return; }
+            const motion = new Motion(req.latitude, req.longitude, req.time, req.vehicleId);
+            db.Motion.create(motion);
+            resp.json(motion);
+        }
+        else{
+            resp.json({code: 403, message: 'error 403'});
+        }
+    });
+    }
 });
 
 module.exports = motionsRouter;
