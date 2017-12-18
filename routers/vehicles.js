@@ -63,7 +63,11 @@ vehiclesRouter.get('/read', (req, resp, next) => {
         }
 });
 vehiclesRouter.post('/update', (req, resp, next) => {
+    if(!req.manager.super){
+        req.body.fleetId = req.manager.fleetId;
+    }    
     req = req.body;
+    console.log(req.fleetId);
     if (!req.id) { resp.json(ErrorObj); return; }
     const id = req.id;
     const vehicle = new Vehicle(req.name, req.fleetId);
@@ -79,6 +83,11 @@ vehiclesRouter.post('/update', (req, resp, next) => {
     resp.json(vehicle);
 });
 vehiclesRouter.post('/delete', (req, resp, next) => {
+    if(!req.manager.super){
+        req.body.fleetId = req.manager.fleetId;
+    }    
+    req = req.body;
+    console.log(req.fleetId);
     req = req.body;
     if (!req.id) { resp.json(ErrorObj); return; }
     const id = req.id;
@@ -97,6 +106,11 @@ vehiclesRouter.post('/delete', (req, resp, next) => {
 });
 
 vehiclesRouter.post('/create', (req, resp, next) => {
+    if(!req.manager.super){
+        req.body.fleetId = req.manager.fleetId;
+    }    
+    req = req.body;
+    console.log(req.fleetId);
     req = req.body;
     if (!req.name && !req.fleetId) { resp.json(ErrorObj); return; }
     const vehicle = new Vehicle(req.name, req.fleetId);
