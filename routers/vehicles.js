@@ -13,18 +13,22 @@ class Vehicle {
 }
 
 vehiclesRouter.get('/readall', (req, resp, next) => {
-    if (!req.query.id) { resp.json(ErrorObj); return; }
-    const id = req.query.id;
-    db.Vehicle.findAll({
-        attributes: ['name'],
-        where:
-            {
-                fleetId: id,
-                deletedAt: null
-            }
-    }).then((res) => {
-        resp.json(res);
-    });
+    if(req.manager.super){
+        db.Vehicle.findAll().then((res) => {
+            resp.json(res);
+        })    
+    }
+    else{
+        db.Vehicle.findAll({
+            where:
+                {
+                    fleetId: req.manager.fleetId,
+                    deletedAt: null
+                }
+        }).then((res) => {
+            resp.json(res);
+        });
+    }
 });
 vehiclesRouter.get('/read', (req, resp, next) => {
     if (!req.query.id) { resp.json(ErrorObj); return; }
