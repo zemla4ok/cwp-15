@@ -22,13 +22,22 @@ fleetsRouter.get('/readall', async (req, resp, next) => {
         resp.json({Code: 403, Message: "Error 403"});
 });
 fleetsRouter.get('/read', (req, resp, next) => {
-    if (!req.query.id) { resp.json(ErrorObj); return; }
-    const id = req.query.id;
+    let fleetId;
+    if(req.manager.super){
+        fleetId = req.manager.fleetId;        
+    }   
+    else{
+        fleetId = req.query.id;        
+    }
+    if (!fleetId) { 
+        resp.json(ErrorObj); 
+        return; 
+    }
     db.Fleet.findAll(
         {
             attributes: ['name'],
             where: {
-                id: id,
+                id: fleetId,
                 deletedAt: null
             },
         }).then((res) => {
@@ -37,20 +46,25 @@ fleetsRouter.get('/read', (req, resp, next) => {
         });
 });
 fleetsRouter.post('/update', (req, resp, next) => {
-    req = req.body;
-    if (!req.id) { resp.json(ErrorObj); return; }
-    const id = req.id;
-    const fleet = new Fleet(req.name);
-    fleet.id = id;
-    db.Fleet.update({ name: req.name },
-        {
-            where: {
-                id: id,
-                deletedAt: null 
+    if(req.manager.super){
+        req = req.body;
+        if (!req.id) { resp.json(ErrorObj); return; }
+        const id = req.id;
+        const fleet = new Fleet(req.name);
+        fleet.id = id;
+        db.Fleet.update({ name: req.name },
+            {
+                where: {
+                    id: id,
+                    deletedAt: null 
+                }
             }
-        }
-    );
-    resp.json(fleet);
+        );
+        resp.json(fleet);
+    }
+    else{
+        resp.json({Code: 403, Message: 'Error 403'});
+    }
 });
 fleetsRouter.post('/delete', (req, resp, next) => {
     req = req.body;
