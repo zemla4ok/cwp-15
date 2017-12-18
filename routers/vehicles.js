@@ -119,27 +119,62 @@ vehiclesRouter.post('/create', (req, resp, next) => {
 });
 
 vehiclesRouter.get('/milage', async (req, resp, next) => {
-    if (!req.query.id) { resp.json(ErrorObj); return; }
-    const id = req.query.id;
-    let vehicle = await db.Vehicle.findById(id);
-    if (vehicle) {
-        let coords = [];
-        let motions = await db.Motion.findAll({
-            where: {
-                vehicleId: id
-            }
-        });
-        motions.forEach((motion) => {
-            coords.push(motion.latLng)
-        });
-        if (coords.length < 2)
+    if (!req.query.id) { resp.json(ErrorObj); return; }    
+    if(req.manager.super){
+        const id = req.query.id;
+        let vehicle = await db.Vehicle.findById(id);
+        if (vehicle) {
+            let coords = [];
+            let motions = await db.Motion.findAll({
+                where: {
+                    vehicleId: id
+                }
+            });
+            motions.forEach((motion) => {
+                coords.push(motion.latLng)
+            });
+            if (coords.length < 2)
             resp.json(0);
-        else {
-            let distance = require('geolib').getPathLength(coords);
-            resp.json(distance);
+            else {
+                let distance = require('geolib').getPathLength(coords);
+                resp.json(distance);
+            }
         }
+        else resp.json(ErrorObj);
     }
-    else resp.json(ErrorObj);
+    else{
+        let result = await db.Vehicle.findAll({
+            where:{
+                id: req.query.id,
+                fleetId: req.manager.fleetId
+            }
+        })
+        if(result.length){
+            const id = req.query.id;
+            let vehicle = await db.Vehicle.findById(id);
+            if (vehicle) {
+                let coords = [];
+                let motions = await db.Motion.findAll({
+                    where: {
+                        vehicleId: id
+                    }
+                });
+                motions.forEach((motion) => {
+                    coords.push(motion.latLng)
+                });
+                if (coords.length < 2)
+                resp.json(0);
+                else {
+                    let distance = require('geolib').getPathLength(coords);
+                    resp.json(distance);
+                }
+            }
+            else resp.json(ErrorObj);
+        }    
+        else{
+            resp.json({code: 403, message: 'Error 403'});
+        }    
+    }
 });
 
 module.exports = vehiclesRouter;
