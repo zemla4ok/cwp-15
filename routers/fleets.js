@@ -67,29 +67,39 @@ fleetsRouter.post('/update', (req, resp, next) => {
     }
 });
 fleetsRouter.post('/delete', (req, resp, next) => {
-    req = req.body;
-    if (!req.id) { resp.json(ErrorObj); return; }
-    const id = req.id;
-    db.Fleet.destroy(
-        {
-            where:
-                {
-                    id: id,
-                    deletedAt: null            
-                }
-        }
-    ).catch((e) => {
-        resp.json(ErrorObj);
-    });
-    resp.json(req.id);
+    if(req.manager.super){
+        req = req.body;
+        if (!req.id) { resp.json(ErrorObj); return; }
+        const id = req.id;
+        db.Fleet.destroy(
+            {
+                where:
+                    {
+                        id: id,
+                        deletedAt: null            
+                    }
+            }
+        ).catch((e) => {
+            resp.json(ErrorObj);
+        });
+        resp.json(req.id);
+    }
+    else{
+        resp.json({Code: 403, Message: 'Error 403'});
+    }
 });
 
 fleetsRouter.post('/create', (req, resp, next) => {
-    req = req.body;
-    if (!req.name) { resp.json(ErrorObj); return; }
-    const fleet = new Fleet(req.name);
-    db.Fleet.create(fleet);
-    resp.json(fleet);
+    if(req.manager.super){
+        req = req.body;
+        if (!req.name) { resp.json(ErrorObj); return; }
+        const fleet = new Fleet(req.name);
+        db.Fleet.create(fleet);
+        resp.json(fleet);
+    }
+    else{
+        resp.json({Code: 403, Message: 'Error 403'});
+    }
 });
 
 module.exports = fleetsRouter;
