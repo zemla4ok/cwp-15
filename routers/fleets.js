@@ -12,10 +12,14 @@ class Fleet {
 const ErrorObj = { code: 404, message: 'Error!!!' };
 
 fleetsRouter.get('/readall', async (req, resp, next) => {
-    resp.statusCode = 200;
-    db.Fleet.findAll().then((res) => {
-        resp.json(res.map(i => i.name));
-    });
+    if(req.manager.super){
+        resp.statusCode = 200;
+        db.Fleet.findAll().then((res) => {
+            resp.json(res.map(i => i.name));
+        });
+    }
+    else
+        resp.json({Code: 403, Message: "Error 403"});
 });
 fleetsRouter.get('/read', (req, resp, next) => {
     if (!req.query.id) { resp.json(ErrorObj); return; }

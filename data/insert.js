@@ -1,6 +1,6 @@
 module.exports = async function (db) {
-    await db.sequelize.sync({force: true});
-    return Promise.all([
+    //await db.sequelize.sync({force: true});
+    return Promise.all(/*[
         db.Fleet.create({
             name: "first park"
         }),
@@ -55,5 +55,5 @@ module.exports = async function (db) {
             time: "2017-11-05T17:11:12.000Z",
             vehicleId: 1
         }),
-    ]);
+    ]*/);
 };
